@@ -12,3 +12,4 @@ testSet = sentences[trainSetSize:trainSetSize + testingSetSize]  # Continue from
 # create an instance of the HHM and passed the training set to generate its parameters.
 hiddenMarkovModel = HiddenMarkovModel(trainSet)
 hiddenMarkovModel.calculate_transition_prob()
+hiddenMarkovModel.calculate_emission_prob()
