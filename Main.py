@@ -1,5 +1,6 @@
 from nltk.corpus import brown
 from HiddenMarkovModel import HiddenMarkovModel
+from Viterbi import Viterbi
 
 # Divide testing and training corpus
 trainSetSize = 10000
@@ -13,3 +14,11 @@ testSet = sentences[trainSetSize:trainSetSize + testingSetSize]  # Continue from
 hiddenMarkovModel = HiddenMarkovModel(trainSet)
 hiddenMarkovModel.calculate_transition_prob()
 hiddenMarkovModel.calculate_emission_prob()
+
+
+unified_test_set = [tup for sent in testSet for tup in sent]
+test_set_observations = [w for (w, _) in unified_test_set]
+for test in testSet[:1]:
+
+    test_set_observations = [w for (w, _) in test]
+    viterbi = Viterbi(hiddenMarkovModel, test_set_observations)
