@@ -88,12 +88,11 @@ class HiddenMarkovModel:
 
         for tag in self.tag_type_set:
             words = [w.lower() for (w, t) in self.unified_sentences if t == tag]
-            smoothed[tag] = WittenBellProbDist(FreqDist(words), bins=1e5)
+            smoothed[tag] = WittenBellProbDist(FreqDist(words), bins=1e7)
 
         for outer_counter, tag in enumerate(self.tag_type_set):
             for inner_counter, word in enumerate(self.word_types_set):
                 emission_pob_matrix[outer_counter][inner_counter] = smoothed[tag].prob(word.lower())
-
 
         self.emission_pob_matrix = emission_pob_matrix
 
