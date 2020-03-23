@@ -1,4 +1,5 @@
-import  numpy as np
+import numpy as np
+
 class Viterbi:
 
     def __init__(self, HMM_model):
@@ -9,6 +10,7 @@ class Viterbi:
         self.tag_types_number = self.HMM_model.get_num_of_tag_types()
 
         self.tag_type_set = self.HMM_model.get_tag_type_set()
+        self.final_prob = []
 
     def tag_words(self, sentence):
 
@@ -20,35 +22,39 @@ class Viterbi:
         tag_type_set = self.HMM_model.get_tag_type_set()
         words_set = self.HMM_model.get_word_type_set()
 
-        for tag_counter, tag in enumerate(tag_type_set):
+        for tag_counter, tag in enumerate(tag_type_set[:len(tag_type_set) - 2]):
             emission_prob = self.emission_pob_matrix[tag].prob(sentence[0])
             viterbi_probs[0][tag_counter] = self.transition_pob_matrix['<s>'].prob(tag) * emission_prob
 
         for word_counter, word in enumerate(sentence[1:]):
-            for tag_counter, tag in enumerate(tag_type_set):
-
+            for tag_counter, tag in enumerate(tag_type_set[:len(tag_type_set) -2]):
                 emission_prob = self.emission_pob_matrix[tag].prob(word)
 
-                all_transition_prob = [self.transition_pob_matrix[tag_type_set[i]].prob(tag) for i in range (self.tag_types_number)]
-                viterbi_probs[word_counter + 1][tag_counter] = max(np.multiply(viterbi_probs[word_counter], all_transition_prob) * emission_prob)
+                all_transition_prob = [self.transition_pob_matrix[tag_type_set[i]].prob(tag) for i in
+                                       range(self.tag_types_number)]
+                viterbi_probs[word_counter + 1][tag_counter] = max(
+                    np.multiply(viterbi_probs[word_counter], all_transition_prob) * emission_prob)
 
-        return  self.decoding_viterbi(sentence,viterbi_probs)
+        return self.decoding_viterbi(sentence, viterbi_probs)
 
-
-    def decoding_viterbi(self,sentence,viterbi_probs):
+    def decoding_viterbi(self, sentence, viterbi_probs):
 
         tags = []
-        #Calculate the prob of the tag given </s>
-        final_prob = [self.transition_pob_matrix[self.tag_type_set[i]].prob('</s>') for i in range(self.tag_types_number)]
-        print(max(np.multiply(viterbi_probs[len(sentence) - 1], final_prob)))
-        tag_index = np.argmax(np.multiply(viterbi_probs[len(sentence)-1], final_prob))
+        # Calculate the prob of the tag given </s>
+        prev_viterbi_column = [self.transition_pob_matrix[self.tag_type_set[i]].prob('</s>') for i in
+                      range(self.tag_types_number)]
+        tag_index = np.argmax(np.multiply(viterbi_probs[len(sentence) - 1], prev_viterbi_column))
         tag = self.tag_type_set[tag_index]
-        tags.insert(0,tag)
+        tags.insert(0, tag)
 
         for i in range(len(sentence) - 1, 0, -1):
-            final_prob = [self.transition_pob_matrix[self.tag_type_set[j]].prob(tag) for j in range(self.tag_types_number)]
-            tag_index = np.argmax(np.multiply(viterbi_probs[i - 1], final_prob) * self.emission_pob_matrix[tag].prob(sentence[i]))
+            prev_viterbi_column = [self.transition_pob_matrix[self.tag_type_set[j]].prob(tag) for j in
+                          range(self.tag_types_number)]
+            tag_index = np.argmax(
+                np.multiply(viterbi_probs[i - 1], prev_viterbi_column) * self.emission_pob_matrix[tag].prob(sentence[i]))
             tag = self.tag_type_set[tag_index]
-            tags.insert(0,tag)
-        print(len(tags))
+            tags.insert(0, tag)
         return tags
+
+    def get_final_prob(self):
+        return self.final_prob

@@ -27,7 +27,6 @@ class HiddenMarkovModel:
         self.words_in_sentences = [word for (word, _) in self.unified_sentences]
 
         self.tag_type_set = sorted(set(self.tags_in_sentences)) + ['<s>'] + ['</s>']
-        print(self.tag_type_set)
         self.tag_types_number = len(self.tag_type_set)
         self.word_types_set = sorted(set(self.words_in_sentences))
         self.word_types_number = len(self.word_types_set)
@@ -35,8 +34,6 @@ class HiddenMarkovModel:
     def calculate_transition_prob_for_POS_tags(self):
 
         tags_in_sentence = self.reformat_sentences()
-        tag_bigrams = nltk.bigrams(tags_in_sentence)
-
         for tag in self.tag_type_set:
             tag_bigrams = nltk.bigrams(tags_in_sentence)
             words = [t2 for (t1, t2) in tag_bigrams if t1 == tag]
